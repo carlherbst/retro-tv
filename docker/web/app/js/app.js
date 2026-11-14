@@ -37,6 +37,26 @@ const el = {
 // hides the pointer (the Pi box: a television, no mouse).
 const TV_MODE = new URLSearchParams(location.search).has('tv');
 document.body.classList.toggle('tv', TV_MODE);
+// The pointer hides after a few seconds without movement, and comes back when
+// the mouse moves: on a screen with a mouse plugged in (a Pi box with a keyboard
+// and mouse, a desktop) it is there when used and out of the picture otherwise.
+// The class sits on <html> so the margins outside the scaled page are covered too.
+{
+  const IDLE_MS = 3000;
+  const root = document.documentElement;
+  let idleTimer = 0, lastX = -1, lastY = -1;
+  const idle = () => root.classList.add('pointer-idle');
+  root.classList.add('pointer-idle');
+  window.addEventListener('pointermove', e => {
+    // Ignore the synthetic "moves" some browsers send when the page under a
+    // still pointer changes (a new guide row, a channel change).
+    if (e.screenX === lastX && e.screenY === lastY) return;
+    lastX = e.screenX; lastY = e.screenY;
+    root.classList.remove('pointer-idle');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(idle, IDLE_MS);
+  }, { passive: true });
+}
 // ?screen=4:3 says the screen shows the whole window as 4:3 whatever its pixel
 // count (the Pi's composite output is 720×480 pixels on a 4:3 tube). The page
 // is then laid out for square pixels and stretched to the real width.
