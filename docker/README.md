@@ -113,6 +113,8 @@ Keep it on your own network or VPN. Do not publish it to the internet: there is 
 
 - Select always tunes the channel and goes straight to the picture, even on a show that has not
   started yet: you get what is on now, like a real TV.
+- The mouse pointer hides after 3 seconds without movement and comes back when the mouse moves,
+  in every layout (including `?tv` on the Pi box, so a plugged-in mouse still works).
 - Up and Down keep your place in time. They never jump back to "now".
 - Down on the last channel wraps round to the first, and Up on the first to the last. Holding Up
   or Down speeds up the longer it is held, and stops at the end of the list.
