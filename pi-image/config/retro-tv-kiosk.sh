@@ -17,6 +17,8 @@ esac
 # The Pi's composite output is 720x480 pixels shown as 4:3: tell the viewer so
 # it lays out for a 4:3 screen and stretches to the pixel width.
 [ "$PAGE" != overscan ] && [ "$DISPLAY_MODE" = composite ] && URL="$URL&screen=4:3"
+# A widescreen HD TV: the guide lays out for the screen's own shape.
+[ "$PAGE" = guide ] && [ "$DISPLAY_MODE" = hdmi1080 ] && URL="$URL&wide"
 # The listings page plays a channel in its top half (promos, infomercials).
 [ "$PAGE" = tvguide ] && [ -n "$TVGUIDE_PROMO" ] && URL="$URL&promo=$TVGUIDE_PROMO"
 
@@ -25,6 +27,7 @@ esac
 # line says. Ask for the box's mode from inside the session instead.
 case "$DISPLAY_MODE" in
     composite) MODE=720x480@60 ;;
+    hdmi1080)  MODE=1920x1080@60 ;;
     *)         MODE=640x480@60 ;;
 esac
 if command -v wlr-randr >/dev/null 2>&1; then

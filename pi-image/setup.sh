@@ -37,7 +37,7 @@ MARGIN_LEFT=${MARGIN_LEFT:-0}; MARGIN_RIGHT=${MARGIN_RIGHT:-0}
 MARGIN_TOP=${MARGIN_TOP:-0}; MARGIN_BOTTOM=${MARGIN_BOTTOM:-0}
 TAILSCALE=${TAILSCALE:-0}
 CEC=${CEC:-auto}; CEC_KEYS=${CEC_KEYS:-0}
-case "$DISPLAY_MODE" in hdmi480|composite) ;; *) echo "DISPLAY_MODE must be hdmi480 or composite" >&2; exit 2;; esac
+case "$DISPLAY_MODE" in hdmi480|hdmi1080|composite) ;; *) echo "DISPLAY_MODE must be hdmi480, hdmi1080 or composite" >&2; exit 2;; esac
 
 # ---- packages -----------------------------------------------------------------
 log "packages"
@@ -193,6 +193,7 @@ margins="margin_left=$MARGIN_LEFT,margin_right=$MARGIN_RIGHT,margin_top=$MARGIN_
 # Both HDMI ports get the mode, so the cable can be in either.
 case "$DISPLAY_MODE" in
     hdmi480)   video="video=HDMI-A-1:640x480@60,$margins video=HDMI-A-2:640x480@60,$margins" ;;   # no "D": that would force an empty port on
+    hdmi1080)  video="video=HDMI-A-1:1920x1080@60,$margins video=HDMI-A-2:1920x1080@60,$margins" ;;
     composite) video="video=Composite-1:720x480@60ie,$margins" ;;
 esac
 line=$(tr -d '\n' < "$CMD" | sed -E 's/ ?(video=[^ ]+|quiet|splash|plymouth\.ignore-serial-consoles|logo\.nologo|consoleblank=[0-9]+|vt\.global_cursor_default=[0-9]+)//g')

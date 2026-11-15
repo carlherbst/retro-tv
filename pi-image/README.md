@@ -175,6 +175,12 @@ one-file one.
 
 ## Display details
 
+- **HDMI 1080p (`DISPLAY_MODE=hdmi1080`):** for a widescreen HD TV instead of a CRT.
+  `video=HDMI-A-1:1920x1080@60` (and `HDMI-A-2`) on the kernel command line, the
+  same mode set from inside the session with `wlr-randr`, and the viewer opened as
+  `?tv&wide`: the box's behaviour (no pointer, CEC, Power off) with the layout that
+  follows the screen's shape (854×480 scaled up at 16:9) instead of 640×480. The
+  margins are usually 0; raise them only if the TV crops the edges.
 - **HDMI 640×480:** `video=HDMI-A-1:640x480@60` on the kernel command line plus the margins
   (`margin_left=…` and so on), the same mechanism as the Batocera Pi's CRT profile. The
   converter makes 480i from it. The mode is also given for `HDMI-A-2`, so either port works.

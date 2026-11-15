@@ -38,6 +38,10 @@ const el = {
 // ?tv forces the plain 640x480 layout, whatever the window's shape, and
 // hides the pointer (the Pi box: a television, no mouse).
 const TV_MODE = new URLSearchParams(location.search).has('tv');
+// ?tv&wide: the same box behaviour on a widescreen HD TV (DISPLAY_MODE=hdmi1080):
+// the layout follows the window's shape (854x480 at 16:9, scaled up) instead
+// of the 640x480 one.
+const TV_WIDE = TV_MODE && new URLSearchParams(location.search).has('wide');
 document.body.classList.toggle('tv', TV_MODE);
 // The pointer hides after a few seconds without movement, and comes back when
 // the mouse moves: on a screen with a mouse plugged in (a Pi box with a keyboard
@@ -126,7 +130,7 @@ function computeLayout() {
   vw /= stretch;
   const aspect = vw / vh;
   let W, H, portrait = false;
-  if (TV_MODE) { W = 640; H = 480; }
+  if (TV_MODE && !TV_WIDE) { W = 640; H = 480; }
   else if (aspect >= 4 / 3) { H = 480; W = Math.min(854, Math.round(H * aspect)); }
   else if (aspect >= 0.8) { W = 640; H = Math.min(800, Math.round(W / aspect)); }
   else { portrait = true; W = 360; H = clamp(Math.round(W / aspect), 560, 820); }
