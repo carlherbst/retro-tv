@@ -5,6 +5,7 @@
   <a href="docker/README.md">Browser app</a> &nbsp;·&nbsp;
   <a href="pi/README.md">Batocera Pi</a> &nbsp;·&nbsp;
   <a href="pi-image/README.md">Retro TV box</a> &nbsp;·&nbsp;
+  <a href="windows-kiosk/README.md">Windows kiosk</a> &nbsp;·&nbsp;
   <a href="roku-tv/README.md">Roku</a> &nbsp;·&nbsp;
   <a href="ersatztv/README.md">ErsatzTV channels</a>
 </p>
@@ -40,6 +41,7 @@ the channels; several small boxes and apps tune in.
 | **Browser app** | The TV guide viewer: plain HTML/CSS/JS behind nginx, in Docker. Pick a show, it plays; keeps playing in the corner while you browse. Nine themes (Cable, Vaporwave, Digital Cable, Satellite, DVR, Media Center, Aqua, Set-Top Web, TV Guide), each with its own splash screen | [`docker/README.md`](docker/README.md) |
 | **Batocera Pi** | A Raspberry Pi running Batocera 43.1: retro games, Kodi live TV with a cable-style guide skin, Plex, and two display profiles (a flat HDMI TV, or a 4:3 CRT through a composite converter) | [`pi/README.md`](pi/README.md), full guide in [`docs/`](docs/index.html) |
 | **Retro TV box** | A Raspberry Pi as an appliance: a stock Pi OS Lite card plus one script becomes a box that boots to the guide full screen on a CRT, with a themed boot splash and an IR remote | [`pi-image/README.md`](pi-image/README.md) |
+| **Windows kiosk** | Any Windows PC wired to a TV: a one-click launcher opens the browser app full screen in Edge or Chrome, every feature included, no app to build | [`windows-kiosk/README.md`](windows-kiosk/README.md) |
 | **Roku** | The same guide and channels as a sideloaded Roku channel | [`roku-tv/README.md`](roku-tv/README.md) |
 
 Everything downstream of the server is a **viewer**: it reads ErsatzTV's channel list, listings and
