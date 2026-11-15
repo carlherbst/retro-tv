@@ -523,13 +523,19 @@ const web = new WebScreen(el.screen, el.tuning, {
 });
 
 // Watch beacons for the channel tracker (TRACKER_URL; js/beacon.js).
+// The sleep timer's standby screen is nothing watched; every beacon also
+// says how long since the last input and the sleep time, so the tracker can
+// keep a TV left on apart from watching (js/idle.js).
 const beacon = new Beacon(loadTracker(), () => {
   const ch = tunedChannel();
-  if (!ch) return null;
+  if (!ch || idle.asleep) return null;
   if (ch.web) return document.hidden ? null : { channel: ch.num, kind: 'web' };
   if (!player.channel || player.state === 'idle' || player.state === 'error') return null;
   return { channel: player.stream, kind: 'stream', hd: player.stream !== ch.num, warm: warmer.channels() };
-}, { tvMode: TV_MODE });
+}, {
+  tvMode: TV_MODE,
+  extra: () => ({ idle: Math.round((Date.now() - idle.last) / 1000), idleAfter: Math.round(idle.timeoutMs / 1000) }),
+});
 
 // A real key press or click is what browsers want before they allow sound.
 function wake() {
@@ -1045,13 +1051,16 @@ const idle = new Idle({ playing: idlePlaying, boundary: idleBoundary, stop: slee
 
 // Something the timer should stop is playing.
 function idlePlaying() {
-  return !!player.channel;
+  return !!player.channel || !!web.frame;
 }
 
 // When the programme on the channel being watched at instant t ends (NaN:
 // not known, ask at once).
 function idleBoundary(t) {
   const ch = tunedChannel();
+  // A web channel: the end of the page's current video, if the page says
+  // (the YouTube channels do, js/web.js); otherwise at once.
+  if (ch && ch.web) return web.endsAt;
   const p = ch && programmeAt(ch, t);
   return p ? p.stop : NaN;
 }
@@ -1061,10 +1070,12 @@ function idleBoundary(t) {
 function sleep() {
   sleptId = S.tunedId;
   player.stop();
+  web.hide();                            // a web channel's page goes, with its sound
   stopSurf();
   bars.reset();
   hideBanner();
   hideOsd();
+  beacon.changed();                      // a stop beacon for the tracker
 }
 
 // A key on the standby screen (or the TV switched back on): the same channel.

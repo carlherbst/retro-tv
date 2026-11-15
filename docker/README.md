@@ -196,6 +196,12 @@ Put them in `.env` (compose passes them on) and run `docker compose up -d`; on t
 start (`web/idle.envsh`). To try it without waiting, add `?idle=1&idleprompt=15` to the address:
 a one-minute timer and a 15-second question, for that page only.
 
+**Web channels**: the sleep timer removes the page on standby. A page can tell the viewer when its
+current programme ends by posting `{type: "retro-tv:now", ends: <ms since 1970 or null>}` to it
+(the viewer asks with `{type: "retro-tv:ask"}` when the page loads); the timer then waits for
+that end, as for a stream. Pages that say nothing (a weather page, the listings page) get the
+question at the idle point.
+
 On the [Pi box](../pi-image/README.md) with an HDMI TV, switching the TV off goes to standby at
 once and switching it on resumes, when the box's HDMI-CEC service is running (`/pi/cec`).
 
@@ -275,6 +281,9 @@ watching, and on leaving. Each beacon is a small `text/plain` POST to
 channel being warmed for fast flipping, the kind of screen (`tv`, `mobile`, `desktop`) and a
 random id kept in the browser's storage (`retro-tv.client-id`). Nothing else: no titles and
 no names. A stream counts while it plays; a web channel only while the page is on screen.
+Each beacon also carries `idle` (seconds since the last key press, click or touch) and
+`idleAfter` (the sleep time in seconds, 0 when off), so the tracker can keep a TV left on with
+nobody at the controls apart from watching; the sleep timer's stop sends a stop beacon.
 
 - The setting is written to `/tracker.json` at start (`web-channels.envsh`'s sibling
   `tracker.envsh`), and the tracker's origin is added to the Content-Security-Policy's
