@@ -55,6 +55,7 @@ Then open <http://localhost:8410>.
 | `VIEWER_PORT` | Port the viewer is published on. Default `8410`. |
 | `VIEWER_BIND` | Where that port is open. Default `127.0.0.1` (this machine only; see "Reach it from other devices" below). `0.0.0.0` also opens it to every device on the local network, with no login. |
 | `WEB_CHANNELS` | Optional. Channels that show a web page instead of their stream, as `<channel number>=<page URL>`, separated by `;`. See "Web channels" below. |
+| `TRACKER_URL` | Optional. A channel tracker that counts watch time, as `https://<host>[:port]`. See "Watch beacons" below. |
 | `COMPOSE_FILE`, `UPLINK_PORT`, `UPLINK_BIND` | Only for the uplink add-on, below. |
 
 After changing a file under `web/`, run `docker compose up -d --build` again. After changing only
@@ -228,6 +229,25 @@ WEB_CHANNELS=192=https://weather.example/?kiosk=true;250=https://cam.example/liv
   value in single quotes (`WEB_CHANNELS='192=https://…?a=1&b=2'`): unquoted, a URL is cut off
   at its first `&` and the channel silently shows its stream.
 
+### Watch beacons
+
+With `TRACKER_URL` set, the viewer tells a channel tracker (a separate app that keeps
+per-channel watch time) which channel it is watching: once a tune settles, every minute while
+watching, and on leaving. Each beacon is a small `text/plain` POST to
+`<TRACKER_URL>/api/watch/beacon` with the channel number, `web` or `stream`, HD or not, the
+channel being warmed for fast flipping, the kind of screen (`tv`, `mobile`, `desktop`) and a
+random id kept in the browser's storage (`retro-tv.client-id`). Nothing else: no titles and
+no names. A stream counts while it plays; a web channel only while the page is on screen.
+
+- The setting is written to `/tracker.json` at start (`web-channels.envsh`'s sibling
+  `tracker.envsh`), and the tracker's origin is added to the Content-Security-Policy's
+  `connect-src`. Without the setting, `/tracker.json` is `{}`, nothing is sent and
+  `connect-src` is `'self'`.
+- The tracker must accept the viewer's origin (CORS). Web channels are only visible to the
+  tracker this way; streams are also seen by its ErsatzTV poller, which cannot tell browsers
+  apart, since they all reach ErsatzTV through this proxy.
+- On the Pi box, set `TRACKER_URL` in `/etc/retro-tv.env` and run `setup.sh` again.
+
 ### Padding and slow connections
 
 A live channel only exists a little ahead of real time: the server keeps the last ~40 seconds
@@ -348,6 +368,7 @@ docker/
 │   ├── Dockerfile            pinned nginx (unprivileged) + the app
 │   ├── nginx.conf.template   static files and the read-only /iptv/ proxy
 │   ├── web-channels.envsh    WEB_CHANNELS -> /web-channels.json and the CSP's frame-src (runs at start)
+│   ├── tracker.envsh         TRACKER_URL -> /tracker.json and the CSP's connect-src (runs at start)
 │   ├── uplink/               the uplink's nginx config (same image)
 │   └── app/
 │       ├── index.html
@@ -357,6 +378,7 @@ docker/
 │       ├── js/player.js      the one video player (hls.js, or Safari's own)
 │       ├── js/warm.js        keeps the next channel running while flipping
 │       ├── js/web.js         web channels: a page in the picture's box instead of the video
+│       ├── js/beacon.js      watch beacons for a channel tracker (TRACKER_URL)
 │       ├── js/bars.js        finds black bars in the picture (for "Fill the screen")
 │       ├── js/settings.js    the settings and where they are kept
 │       ├── js/themes.js      the themes (Cable, Vaporwave and seven more): names, splash, browser tint

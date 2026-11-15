@@ -79,6 +79,11 @@ WEB_CHANNELS=${WEB_CHANNELS:-}
 WEB_CHANNELS_JSON="$APP/web-channels.json"
 export WEB_CHANNELS WEB_CHANNELS_JSON
 . "$REPO/docker/web/web-channels.envsh"
+# Watch beacons (TRACKER_URL in $CFG): /tracker.json and TRACKER_CONNECT_SRC.
+TRACKER_URL=${TRACKER_URL:-}
+TRACKER_JSON="$APP/tracker.json"
+export TRACKER_URL TRACKER_JSON
+. "$REPO/docker/web/tracker.envsh"
 # The site is the template with its closing brace taken off and the include put
 # in before it. It is built aside and the old one kept, so a template that no
 # longer ends the way this expects cannot leave nginx unable to start.
@@ -87,6 +92,8 @@ sed -e 's|listen 8080;|listen 127.0.0.1:8410;|' \
     -e "s|root /usr/share/nginx/html;|root $APP;|" \
     -e "s|\${ERSATZTV_URL}|$ERSATZTV_URL|g" \
     -e "s|\${WEB_FRAME_SRC}|$WEB_FRAME_SRC|g" \
+    -e "s|\${TRACKER_CONNECT_SRC}|$TRACKER_CONNECT_SRC|g" \
+    -e "s|alias /tmp/tracker.json;|alias $TRACKER_JSON;|" \
     -e "s|alias /tmp/web-channels.json;|alias $WEB_CHANNELS_JSON;|" \
     "$REPO/docker/web/nginx.conf.template" |
     awk '{ line[NR] = $0 }
