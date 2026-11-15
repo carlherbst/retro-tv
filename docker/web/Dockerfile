@@ -14,6 +14,8 @@ ENV NGINX_ENVSUBST_FILTER="^(ERSATZTV_URL|WEB_FRAME_SRC|TRACKER_CONNECT_SRC|UPLI
 COPY --chmod=755 web-channels.envsh /docker-entrypoint.d/15-web-channels.envsh
 # Watch beacons: TRACKER_URL -> /tracker.json and the CSP's connect-src.
 COPY --chmod=755 tracker.envsh /docker-entrypoint.d/16-tracker.envsh
+# Sleep timer: IDLE_TIMEOUT_MIN and IDLE_PROMPT_SEC -> /idle.json.
+COPY --chmod=755 idle.envsh /docker-entrypoint.d/17-idle.envsh
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY uplink/uplink.conf.template /etc/nginx/uplink-templates/default.conf.template
 COPY app/ /usr/share/nginx/html/
