@@ -797,7 +797,7 @@ const beacon = new Beacon(loadTracker(), () => {
   const ch = tunedChannel();
   if (!ch || idle.asleep) return null;
   // A web channel counts while its page is on screen.
-  if (ch.web && web.showing) return { channel: ch.num, kind: 'web', hd: false, warm: [] };
+  if (ch.web) return web.showing && !document.hidden ? { channel: ch.num, kind: 'web', hd: false, warm: [] } : null;
   if (!player.channel || player.state !== 'playing' || !videoMoving()) return null;
   return { channel: player.stream, kind: 'stream', hd: player.stream !== ch.num, warm: warmer.channels() };
 }, {
@@ -1121,6 +1121,9 @@ function idlePlaying() {
 // not known, ask at once).
 function idleBoundary(t) {
   const ch = tunedChannel();
+  // A web channel: the end of the page's current video, if the page says
+  // (the YouTube web channels do, js/web.js); otherwise at once.
+  if (ch && ch.web) return web.endsAt ?? NaN;
   const p = ch && programmeAt(ch, t);
   return p ? p.stop : NaN;
 }

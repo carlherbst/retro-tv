@@ -47,6 +47,17 @@ export class WebScreen {
     this.frame = null;
     this.url = null;
     this.ours = false;           // the page is the viewer's own (same origin)
+    this.origin = null;
+    this.endsAt = null;
+    // A page that says when its current programme ends (the YouTube web
+    // channels post {type: 'retro-tv:now', ends}) lets the sleep timer wait
+    // for that end. Only the shown frame, from its own origin, is listened to.
+    window.addEventListener('message', e => {
+      const d = e.data;
+      if (!this.frame || e.source !== this.frame.contentWindow || !d || d.type !== 'retro-tv:now') return;
+      if (e.origin !== this.origin && !(this.origin === location.origin && e.origin === 'null')) return;
+      this.endsAt = Number.isFinite(d.ends) ? d.ends : null;
+    });
     // A page may still try to take the focus by script (an autofocus
     // field, a player). The keys would then go to it, not the viewer:
     // take the focus straight back.
@@ -75,11 +86,18 @@ export class WebScreen {
     // Only the viewer's origin (scheme, host, port), never a path: embedded
     // players such as YouTube's refuse to play without it (error 153).
     frame.referrerPolicy = 'strict-origin';
-    frame.addEventListener('load', () => { if (frame === this.frame) this.onLoad(); });
+    frame.addEventListener('load', () => {
+      if (frame !== this.frame) return;
+      this.onLoad();
+      // Ask what is on now, rather than wait for the page's next report.
+      try { frame.contentWindow.postMessage({ type: 'retro-tv:ask' }, this.origin); } catch { /* not a page that listens */ }
+    });
     this.box.insertBefore(frame, this.before);
     this.frame = frame;
     this.url = url;
     this.ours = ours;
+    this.origin = new URL(url, location.href).origin;
+    this.endsAt = null;
     return true;
   }
 
@@ -103,6 +121,7 @@ export class WebScreen {
     this.frame = null;
     this.url = null;
     this.ours = false;
+    this.endsAt = null;
     if (wasFocused) this.#refocus();
   }
 
