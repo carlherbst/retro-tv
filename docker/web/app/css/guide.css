@@ -386,8 +386,11 @@ body {
   -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
 }
 [hidden] { display: none !important; }
-/* ?tv: a television, no mouse; never show a pointer over the guide. */
-body.tv, body.tv * { cursor: none !important; }
+/* The pointer hides when the mouse has been still for a few seconds
+   (js/app.js); it shows again as soon as the mouse moves. On <html> so the
+   margins around the scaled page are covered as well. A web channel's page
+   takes no pointer events, so this applies over it too. */
+html.pointer-idle, html.pointer-idle * { cursor: none !important; }
 
 .ch { color: var(--ink-accent); }
 .title, .ch, .ep, .time { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
